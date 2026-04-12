@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Picture } from '../entities/picture.entity';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class PicturesService {
@@ -22,5 +24,18 @@ export class PicturesService {
 
     async delete(id: number): Promise<void> {
         await this.picturesRepository.delete(id);
+    }
+
+    async deleteByUrl(url: string): Promise<void> {
+        const picture = await this.picturesRepository.findOne({ where: { url } });
+
+        if (picture) {
+            // Удаляем файл
+            const filePath = path.join(process.cwd(), picture.url);
+
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+            await this.picturesRepository.delete(picture.id);
+        }
     }
 }

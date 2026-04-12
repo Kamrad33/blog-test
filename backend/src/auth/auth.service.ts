@@ -51,6 +51,7 @@ export class AuthService {
             passwordHash,
             ...registerData,
         }
+
         const user = await this.usersService.create(newUser);
 
         return this.login(user);

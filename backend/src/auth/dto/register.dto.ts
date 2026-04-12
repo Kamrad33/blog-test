@@ -6,6 +6,7 @@ export class RegisterDto {
     @MaxLength(100)
     login: string;
 
+    // TODO регулярка на сложность
     @IsString()
     @MinLength(6)
     password: string;

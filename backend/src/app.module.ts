@@ -9,12 +9,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProfileModule } from './profile/profile.module';
 import { PicturesModule } from './pictures/pictures.module';
+import { TempUploadModule } from './temp-upload/temp-upload.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: '.env',
+            envFilePath: '../.env',
         }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -36,7 +39,8 @@ import { PicturesModule } from './pictures/pictures.module';
         PostsModule,
         UploadModule,
         ProfileModule,
-        PicturesModule
+        PicturesModule,
+        TempUploadModule
     ],
     controllers: [AppController],
     providers: [AppService],
