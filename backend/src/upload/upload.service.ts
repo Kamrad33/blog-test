@@ -21,7 +21,7 @@ export class UploadService {
         if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
         const filepath = path.join(uploadDir, filename);
-        fs.writeFileSync(filepath, file.buffer);
+        await fs.writeFile(filepath, file.buffer, () => {}); // TODO вынести в воркер с асинхронщиной
 
         // Сохраняем запись в pictures
         const picture = this.picturesRepository.create({

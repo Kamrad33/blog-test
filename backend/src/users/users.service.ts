@@ -28,4 +28,12 @@ export class UsersService {
 
         return this.usersRepository.save(user);
     }
+
+      async findAll(): Promise<Partial<User>[]> {
+        const users = await this.usersRepository.find({
+            select: ['id', 'login', 'firstName', 'lastName', 'avatarPicId'], // только нужные поля
+        });
+
+        return users;
+    }
 }
