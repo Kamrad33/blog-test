@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Post } from './post.entity';
 import { Picture } from './picture.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -18,6 +19,7 @@ export class User {
     login: string;
 
     @Column({ name: 'password_hash', length: 255 })
+    @Exclude()
     passwordHash: string;
 
     @Column({ unique: true })

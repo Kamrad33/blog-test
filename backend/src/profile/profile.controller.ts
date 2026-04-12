@@ -1,17 +1,18 @@
-import { Controller, Get, Patch, Post, Body, UseGuards, Request, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, UseGuards, Request, UploadedFile, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UploadService } from '../upload/upload.service'; // создадим позже
+import { UploadService } from '../upload/upload.service';
 import { Multer } from 'multer';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor) // десереализация exclude полей
 export class ProfileController {
     constructor(
         private profileService: ProfileService,
-        private uploadService: UploadService, // для аватара
+        private uploadService: UploadService,
     ) {}
 
     @Get()
