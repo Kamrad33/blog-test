@@ -16,15 +16,17 @@ export class TempUploadService {
     async saveTempFile(file: Express.Multer.File, userId: number): Promise<string> {
         const ext = path.extname(file.originalname);
         const filename = `temp_${userId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
-        const uploadDir = process.env.TEMP_UPLOAD_DIR || './uploads/temp';
+        const uploadDir = (process.env.UPLOAD_DIR || './uploads/') + (process.env.TEMP_DIR || '/temp');
 
+        // TODO нужен отдельный сервис загрузки файлов в воркерах
         if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
         const filepath = path.join(uploadDir, filename);
 
-        fs.writeFileSync(filepath, file.buffer);
+        await fs.writeFile(filepath, file.buffer, () => {}); // TODO вынести в воркер с асинхронщиной
 
-        const url = `/uploads/temp/${filename}`;
+        const url = `${uploadDir}/${filename}`;
+
         const tempPic = this.tempPicturesRepository.create({
             url,
             userId,
@@ -38,23 +40,6 @@ export class TempUploadService {
 
     async markAsUsed(url: string): Promise<void> {
         await this.tempPicturesRepository.update({ url }, { isUsed: true });
-    }
-
-    async deleteUnusedOlderThan(hours: number = 24): Promise<void> {
-        const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
-
-        const unused = await this.tempPicturesRepository.find({
-            where: { isUsed: false, createdAt: cutoff },
-        });
-    
-        for (const pic of unused) {
-            // Удалить физический файл
-            const filePath = path.join(process.cwd(), pic.url);
-
-            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-            await this.tempPicturesRepository.delete(pic.id);
-        }
     }
 
     async findByUrl(url: string): Promise<TemporaryPicture | null> {
@@ -72,7 +57,7 @@ export class TempUploadService {
         for (const pic of unused) {
             const filePath = path.join(process.cwd(), pic.url);
 
-            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            if (fs.existsSync(filePath)) fs.unlink(filePath, () => {});
 
             await this.tempPicturesRepository.delete(pic.id);
         }

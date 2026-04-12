@@ -23,7 +23,7 @@ export class PostsService {
 
     async create(userId: number, createPostDto: CreatePostDto): Promise<Post> {
         const { content } = createPostDto;
-        // Сохраняем пост (пока без картинок)
+
         const post = this.postsRepository.create({
             userId,
             content,
@@ -37,11 +37,11 @@ export class PostsService {
 
         for (const url of tempUrls) {
             // Находим запись во временной таблице
-            const tempPic = await this.tempUploadService.findByUrl(url); // нужно добавить метод в TempUploadService
+            const tempPic = await this.tempUploadService.findByUrl(url);
 
             if (tempPic && !tempPic.isUsed) {
                 // Создаём постоянную картинку
-                    const picture = this.picturesRepository.create({
+                const picture = this.picturesRepository.create({
                     url,
                     postId: savedPost.id,
                     order: 0,
@@ -89,6 +89,7 @@ export class PostsService {
 
         // 2. Удалить картинки, которых нет в новом контенте
         const toRemove = oldUrls.filter(url => !newUrls.includes(url));
+
         for (const url of toRemove) {
             // Удаляем из pictures (если это постоянная картинка)
             await this.picturesService.deleteByUrl(url);
@@ -105,14 +106,13 @@ export class PostsService {
                 await this.picturesService.create({
                     url,
                     postId: post.id,
-                    // userId: null,
                     order: 0,
                 });
+
                 await this.tempUploadService.markAsUsed(url);
             }
         }
 
-        // 4. Обновить текст поста
         post.content = newContent;
 
         await this.postsRepository.save(post);
@@ -133,6 +133,7 @@ export class PostsService {
 
             await this.picturesRepository.delete(pic.id);
         }
+
         post.deletedAt = new Date();
 
         await this.postsRepository.save(post);

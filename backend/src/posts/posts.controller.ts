@@ -7,40 +7,45 @@ import { UpdatePostDto } from './dto/update-post.dto';
 @Controller('posts')
 @UseGuards(JwtAuthGuard)
 export class PostsController {
-  constructor(private postsService: PostsService) {}
+    constructor(private postsService: PostsService) {}
 
-  @Post()
-  create(@Request() req, @Body() createPostDto: CreatePostDto) {
-    const userId = req.user.userId;
-    return this.postsService.create(userId, createPostDto);
-  }
+    @Post()
+    create(@Request() req, @Body() createPostDto: CreatePostDto) {
+        const userId = req.user.userId;
 
-  @Get()
-  findAll(
-    @Request() req,
-    @Query('limit') limit = 10,
-    @Query('offset') offset = 0,
-    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC',
-  ) {
-    const userId = req.user.userId;
-    return this.postsService.findAll(userId, +limit, +offset, sort);
-  }
+        return this.postsService.create(userId, createPostDto);
+    }
 
-  @Get(':id')
-  findOne(@Request() req, @Param('id') id: string) {
-    const userId = req.user.userId;
-    return this.postsService.findOne(+id, userId);
-  }
+    @Get()
+    findAll(
+        @Request() req,
+        @Query('limit') limit = 10,
+        @Query('offset') offset = 0,
+        @Query('sort') sort: 'ASC' | 'DESC' = 'DESC', // транслит чтобы убрать упоминания SQL
+    ) {
+        const userId = req.user.userId;
 
-  @Patch(':id')
-  update(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    const userId = req.user.userId;
-    return this.postsService.update(+id, userId, updatePostDto);
-  }
+        return this.postsService.findAll(userId, +limit, +offset, sort);
+    }
 
-  @Delete(':id')
-  remove(@Request() req, @Param('id') id: string) {
-    const userId = req.user.userId;
-    return this.postsService.remove(+id, userId);
-  }
+    @Get(':id')
+    findOne(@Request() req, @Param('id') id: string) {
+        const userId = req.user.userId;
+
+        return this.postsService.findOne(+id, userId);
+    }
+
+    @Patch(':id')
+    update(@Request() req, @Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+        const userId = req.user.userId;
+
+        return this.postsService.update(+id, userId, updatePostDto);
+    }
+
+    @Delete(':id')
+    remove(@Request() req, @Param('id') id: string) {
+        const userId = req.user.userId;
+
+        return this.postsService.remove(+id, userId);
+    }
 }
