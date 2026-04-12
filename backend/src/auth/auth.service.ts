@@ -37,18 +37,24 @@ export class AuthService {
         const {
             login,
             password,
+            email,
             ...registerData
         } = registerDto;
 
-        const isExist = await this.usersService.findOneByLogin(login);
+        const isLoginExist = await this.usersService.findOneByLogin(login);
 
-        if (isExist) throw new UnauthorizedException('Login already exists');
+        if (isLoginExist) throw new UnauthorizedException('Login already exists');
+
+        const isEmailExist = await this.usersService.findOneByLogin(email);
+    
+        if (isEmailExist) throw new UnauthorizedException('Email already exists');
 
         const passwordHash = await bcrypt.hash(password, 10);
 
         const newUser: CreateUserDto = {
             login,
             passwordHash,
+            email,
             ...registerData,
         }
 
