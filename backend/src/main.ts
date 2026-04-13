@@ -12,3 +12,6 @@ async function bootstrap() {
     await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
+
+// заглушка чтобы убрать рассхождение БД и сервера
+process.env.TZ = 'UTC';
