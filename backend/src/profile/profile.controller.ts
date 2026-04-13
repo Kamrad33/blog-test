@@ -31,12 +31,15 @@ export class ProfileController {
 
     @Post('avatar')
     @UseInterceptors(FileInterceptor('avatar'))
-    async uploadAvatar(@Request() req, @UploadedFile() file: Express.Multer.File) {
+        async uploadAvatar(@Request() req, @UploadedFile() file: Express.Multer.File) {
+
         const userId = req.user.userId;
 
         const pictureId = await this.uploadService.saveAvatar(file, userId);
-        const user = await this.profileService.updateAvatar(userId, pictureId);
+        const picture = await this.uploadService.getPictureById(pictureId);
 
-        return { avatarUrl: user.avatarPicId };
+        await this.profileService.updateAvatar(userId, pictureId);
+
+        return { avatarUrl: picture.url };
     }
 }

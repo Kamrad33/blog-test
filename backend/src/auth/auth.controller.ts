@@ -1,14 +1,21 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+    ) {}
 
     @Post('register')
-    async register(@Body() body: RegisterDto) {
-        return this.authService.register(body);
+    @UseInterceptors(FileInterceptor('avatar'))
+    async register(
+        @Body() body: RegisterDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        return this.authService.register(body, file);
     }
 
     @Post('login')
