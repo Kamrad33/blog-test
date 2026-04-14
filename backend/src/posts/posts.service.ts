@@ -33,7 +33,7 @@ export class PostsService {
         const savedPost = await this.postsRepository.save(post);
 
         // Парсим content, находим все URL временных картинок
-        const tempUrls = this.extractTempUrls(content);
+        const tempUrls = this.extractImageUrls(content);
 
         for (const url of tempUrls) {
             // Находим запись во временной таблице
@@ -78,6 +78,7 @@ export class PostsService {
 
     async update(id: number, userId: number, updatePostDto: UpdatePostDto): Promise<Post> {
         const post = await this.findOne(id, userId);
+
         const oldContent = post.content;
         const newContent = updatePostDto.content;
 
@@ -92,11 +93,12 @@ export class PostsService {
 
         for (const url of toRemove) {
             // Удаляем из pictures (если это постоянная картинка)
+            await this.tempUploadService.markAsUnused(url);
             await this.picturesService.deleteByUrl(url);
         }
 
         // 3. Обработать новые временные картинки (которые не были в старом посте)
-        const potentialTempUrls = newUrls.filter(url => url.includes('/uploads/temp/'));
+        const potentialTempUrls = newUrls.filter(url => url.includes('/uploads/pics/'));
 
         for (const url of potentialTempUrls) {
             const tempPic = await this.tempUploadService.findByUrl(url);
@@ -139,17 +141,26 @@ export class PostsService {
         await this.postsRepository.save(post);
     }
 
-    private extractTempUrls(content: string): string[] {
-        const regex = /https?:\/\/[^\s"']+?\/uploads\/temp\/[^\s"')]+/g;
-        const matches = content.match(regex);
+    private extractImageUrls(content: string): string[] {
+        try {
+            const data = JSON.parse(content);
+            const urls: string[] = [];
 
-        return matches ? [...new Set(matches)] : [];
-    }
+            const traverse = (obj: any) => {
+                if (typeof obj === 'object' && obj !== null) {
+                    if (obj.url && typeof obj.url === 'string' && obj.url.includes('/uploads/pics/')) {
+                        urls.push(obj.url);
+                    }
 
-    private extractImageUrls(html: string): string[] {
-        const regex = /https?:\/\/[^\s"']+?\/uploads\/(?:temp|avatars|posts)\/[^\s"')]+/g;
-        const matches = html.match(regex);
+                    Object.values(obj).forEach(value => traverse(value));
+                }
+            };
 
-        return matches ? [...new Set(matches)] : [];
+            traverse(data);
+
+            return [...new Set(urls)];
+        } catch {
+            return [];
+        }
     }
 }

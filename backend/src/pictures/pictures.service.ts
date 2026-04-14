@@ -33,8 +33,8 @@ export class PicturesService {
             // Удаляем файл
             const filePath = path.join(process.cwd(), picture.url);
 
-            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
+            if (fs.existsSync(filePath)) fs.unlink(filePath, () => {});
+            
             await this.picturesRepository.delete(picture.id);
         }
     }

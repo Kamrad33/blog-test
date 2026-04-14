@@ -16,7 +16,7 @@ export class TempUploadService {
     async saveTempFile(file: Express.Multer.File, userId: number): Promise<string> {
         const ext = path.extname(file.originalname);
         const filename = `temp_${userId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
-        const uploadDir = (process.env.UPLOAD_DIR || './uploads/') + (process.env.TEMP_DIR || '/temp');
+        const uploadDir = (process.env.UPLOAD_DIR || './uploads/') + (process.env.PICS_DIR || '/pics');
 
         // TODO нужен отдельный сервис загрузки файлов в воркерах
         if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -42,10 +42,15 @@ export class TempUploadService {
         await this.tempPicturesRepository.update({ url }, { isUsed: true });
     }
 
+    async markAsUnused(url: string): Promise<void> {
+        await this.tempPicturesRepository.update({ url }, { isUsed: false });
+    }
+
     async findByUrl(url: string): Promise<TemporaryPicture | null> {
         return this.tempPicturesRepository.findOne({ where: { url } });
     }
 
+    // cron для очистки неиспользуемых картинок
     @Cron(CronExpression.EVERY_DAY_AT_2AM) // каждую ночь в 2 часа
     async cleanupUnusedTempImages() {
         const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 часа
