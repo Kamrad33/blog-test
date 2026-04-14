@@ -21,7 +21,13 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Не обрабатываем 401 на эндпоинтах аутентификации
+        const isAuthEndpoint =
+            originalRequest.url?.includes('/auth/login') ||
+            originalRequest.url?.includes('/auth/register') ||
+            originalRequest.url?.includes('/auth/refresh');
+
+        if (error.response?.status === 401 && !isAuthEndpoint && !originalRequest._retry) {
             const refreshToken = localStorage.getItem('refresh_token');
 
             try {

@@ -39,14 +39,18 @@ const Editor = ({ data, isOpen, onChange }: EditorProps) => {
                                 uploader: {
                                     uploadByFile: async (file: File) => {
                                         const formData = new FormData();
+
                                         formData.append('image', file);
+
                                         try {
                                             const response = await api.post('/upload/temp', formData, {
                                                 headers: { 'Content-Type': 'multipart/form-data' },
                                             });
+
                                             return { success: 1, file: { url: response.data.url } };
                                         } catch (error) {
                                             console.error('Upload failed:', error);
+
                                             return { success: 0, file: { url: '' } };
                                         }
                                     },
@@ -68,7 +72,7 @@ const Editor = ({ data, isOpen, onChange }: EditorProps) => {
             editorInstance.current.destroy();
             editorInstance.current = null;
         }
-    }, [isOpen, data, onChange]); // исправлена зависимость
+    }, [isOpen, data, onChange]);
 
     return <div id={holderId} style={{ border: '1px solid #ccc', padding: '10px' }} />;
 };

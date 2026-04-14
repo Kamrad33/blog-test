@@ -34,13 +34,13 @@ const PostItem = ({
 
             setPostHtml(html)
         }
-    }, []);
+    }, [post]);
 
     const handleDeleteConfirm = () => {
         onDelete(post.id);
         setConfirmDelete(false);
     };
-    
+
     return (
         <Card sx={{ mb: 2 }}>
             <CardContent>
@@ -52,7 +52,13 @@ const PostItem = ({
                 )}
 
                 <Typography variant="caption" color="textSecondary">
-                    {new Date(post.createdAt).toLocaleString()}
+                    Опубликован: {new Date(post.createdAt).toLocaleString()}
+                    <br />
+                    {new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime() && (
+                        <>
+                            Обновлён: {new Date(post.updatedAt).toLocaleString()}
+                        </>
+                    )}
                 </Typography>
 
                 <Box sx={{ mt: 1 }}>

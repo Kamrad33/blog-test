@@ -29,7 +29,7 @@ const RegisterPage = () => {
 
         registerUser.mutate(formData);
   };
-
+ 
     return (
         <Container maxWidth="xs">
             <Box sx={{ mt: 8 }}>
@@ -38,7 +38,7 @@ const RegisterPage = () => {
                 </Typography>
 
                 {registerUser.isError && (
-                    <Alert severity="error">Ошибка регистрации</Alert>
+                    <Alert severity="error">Ошибка регистрации: {registerUser.error?.response.status === 400 && registerUser.error?.response.data.message}</Alert>
                 )}
 
                 <Box

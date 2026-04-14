@@ -45,6 +45,9 @@ export const useAuth = () => {
 
             navigate('/profile');
         },
+        onError: (error: any) => {
+            return error
+        }
     });
 
     const logout = () => {

@@ -66,7 +66,7 @@ const ProfileInfo = () => {
                 >
                     <Box sx={{ position: 'relative'}}>
                         <Avatar
-                            src={'http://localhost:3000/' + avatarUrl}
+                            src={avatarUrl}
                             sx={{
                                 width: 100,
                                 height: 100,
